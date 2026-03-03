@@ -1,5 +1,6 @@
 package fi.jyu.ohj2.ttkelaw.todo;
 
+import fi.jyu.ohj2.ttkelaw.todo.data.Tehtava;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 
@@ -7,9 +8,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import  javafx.scene.control.CheckBox;
+import tools.jackson.databind.ObjectMapper;
 
 import java.awt.*;
 import java.net.URL;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
@@ -46,13 +50,17 @@ public class MainController implements Initializable {
                tehdyt.getChildren().remove(tehtava);
                tekemattomat.getChildren().add(tehtava);
            }
-
-
         });
-
-
         tekemattomat.getChildren().add(tehtava);
         uusiTehtavaNimi.clear();
         uusiTehtavaNimi.requestFocus();
+        List<Tehtava> tekemattomatList = tekemattomat.getChildren().stream()
+                .map(n -> (CheckBox) n)
+                .map(cb -> new Tehtava(cb.getText(), cb.isSelected()))
+                .toList();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(Path.of("tehtavat.json"), tekemattomatList);
+
+
     }
 }
