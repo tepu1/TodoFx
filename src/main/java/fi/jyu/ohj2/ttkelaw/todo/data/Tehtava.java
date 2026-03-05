@@ -20,8 +20,4 @@ public class Tehtava {
     public boolean isTehty() {
         return tehty;
     }
-
-
-
-
 }

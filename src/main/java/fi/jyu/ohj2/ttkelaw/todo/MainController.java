@@ -1,6 +1,9 @@
 package fi.jyu.ohj2.ttkelaw.todo;
 
 import fi.jyu.ohj2.ttkelaw.todo.data.Tehtava;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 
@@ -31,9 +34,17 @@ public class MainController implements Initializable {
     @FXML
     private VBox tehdyt;
 
+    private ObservableList<Tehtava> tehtavat = FXCollections.observableArrayList();
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        tehtavat.addListener((ListChangeListener<Tehtava>) change -> {
+            paivitaNakyma();
+            tallenna();
+        });
+
         lataa();
         lisaaUusiTehtavaPainike.setOnAction(event -> lisaaTehtava());
         uusiTehtavaNimi.setOnAction(event -> lisaaTehtava());
@@ -48,9 +59,6 @@ public class MainController implements Initializable {
                 .toList();
     }
     private void tallenna() {
-        List<Tehtava> tehtavat = new ArrayList<>();
-        tehtavat.addAll(haeTehtavat(tekemattomat));
-        tehtavat.addAll(haeTehtavat(tehdyt));
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(Path.of("tehtavat.json"), tehtavat);
     }
@@ -61,16 +69,8 @@ public class MainController implements Initializable {
         }
         try {
             ObjectMapper mapper = new ObjectMapper();
-            List<Tehtava> tehtavat = mapper.readValue(path, new TypeReference<>() {});
-            for (Tehtava t : tehtavat) {
-                CheckBox cb = luoCheckBox(t.getTeksti(), t.isTehty());
-                if (t.isTehty()) {
-                    tehdyt.getChildren().add(cb);
-                }
-                else {
-                    tekemattomat.getChildren().add(cb);
-                }
-            }
+            List<Tehtava> kaikkiTehtavat = mapper.readValue(path, new TypeReference<>() {});
+            tehtavat.addAll(kaikkiTehtavat);
 
         } catch (JacksonException e) {
             IO.println("Virhe: " + e.getMessage());
@@ -79,18 +79,12 @@ public class MainController implements Initializable {
 
 
 
-    private CheckBox luoCheckBox(String teksti, boolean tehty) {
-        CheckBox tehtava = new CheckBox(teksti);
-        tehtava.setSelected(tehty);
+    private CheckBox luoCheckBox(Tehtava t) {
+        CheckBox tehtava = new CheckBox(t.getTeksti());
+        tehtava.setSelected(t.isTehty());
         tehtava.setOnAction(event -> {
-            if (tehtava.isSelected()) {
-                tekemattomat.getChildren().remove(tehtava);
-                tehdyt.getChildren().add(tehtava);
-            } else {
-                tehdyt.getChildren().remove(tehtava);
-                tekemattomat.getChildren().add(tehtava);
-            }
-            tallenna();
+            tehtavat.remove(t);
+            tehtavat.add(new Tehtava(t.getTeksti(), !t.isTehty()));
         });
         return tehtava;
     }
@@ -102,10 +96,24 @@ public class MainController implements Initializable {
             uusiTehtavaNimi.requestFocus();
             return;
         }
-        tekemattomat.getChildren().add(luoCheckBox(teksti, false));
+        tehtavat.add(new Tehtava(teksti, false));
         uusiTehtavaNimi.clear();
         uusiTehtavaNimi.requestFocus();
-        tallenna();
+    }
+    private void paivitaNakyma() {
+
+        tekemattomat.getChildren().clear();
+        tehdyt.getChildren().clear();
+
+        for (Tehtava tehtava : tehtavat) {
+            CheckBox cb = luoCheckBox(tehtava);
+            if (tehtava.isTehty()) {
+                tehdyt.getChildren().add(cb);
+            } else {
+                tekemattomat.getChildren().add(cb);
+            }
+        }
 
     }
+
 }
