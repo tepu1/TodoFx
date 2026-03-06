@@ -50,18 +50,11 @@ public class MainController implements Initializable {
         uusiTehtavaNimi.setOnAction(event -> lisaaTehtava());
     }
 
-
-
-    private List<Tehtava> haeTehtavat(VBox sailio) {
-        return sailio.getChildren().stream()
-                .map(n -> (CheckBox) n)
-                .map(cb -> new Tehtava(cb.getText(), cb.isSelected()))
-                .toList();
-    }
     private void tallenna() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(Path.of("tehtavat.json"), tehtavat);
     }
+
     private void lataa() {
         Path path = Path.of("tehtavat.json");
         if (Files.notExists(path)) {
@@ -77,8 +70,6 @@ public class MainController implements Initializable {
         }
     }
 
-
-
     private CheckBox luoCheckBox(Tehtava t) {
         CheckBox tehtava = new CheckBox(t.getTeksti());
         tehtava.setSelected(t.isTehty());
@@ -88,7 +79,6 @@ public class MainController implements Initializable {
         });
         return tehtava;
     }
-
 
     private void lisaaTehtava() {
         String teksti = uusiTehtavaNimi.getText();
@@ -100,6 +90,7 @@ public class MainController implements Initializable {
         uusiTehtavaNimi.clear();
         uusiTehtavaNimi.requestFocus();
     }
+
     private void paivitaNakyma() {
 
         tekemattomat.getChildren().clear();
