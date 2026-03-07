@@ -1,4 +1,4 @@
-package fi.jyu.ohj2.ttkelaw.todo.data;
+package fi.jyu.ohj2.ttkelaw.todo.model;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

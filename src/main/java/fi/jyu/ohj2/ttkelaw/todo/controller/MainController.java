@@ -1,6 +1,7 @@
-package fi.jyu.ohj2.ttkelaw.todo;
+package fi.jyu.ohj2.ttkelaw.todo.controller;
 
-import fi.jyu.ohj2.ttkelaw.todo.data.Tehtava;
+import fi.jyu.ohj2.ttkelaw.todo.model.Tehtava;
+import fi.jyu.ohj2.ttkelaw.todo.model.Tehtavakokoelma;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -13,16 +14,13 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.layout.VBox;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
-import java.awt.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -38,21 +36,14 @@ public class MainController implements Initializable {
     @FXML
     private Button poistaValittuPainike;
 
-    private ObservableList<Tehtava> tehtavat = FXCollections.observableArrayList(
-            tehtava -> new Observable[] {
-                    tehtava.tehtyProperty()
-            }
-    );
+    Tehtavakokoelma tehtavakokoelma = new Tehtavakokoelma();
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        tehtavat.addListener((ListChangeListener<Tehtava>) change -> {
-            tallenna();
-        });
 
-        SortedList<Tehtava> tehtavatLajiteltu = tehtavat.sorted(Comparator.comparing(Tehtava::isTehty));
+        SortedList<Tehtava> tehtavatLajiteltu = tehtavakokoelma.getTehtavat().sorted(Comparator.comparing(Tehtava::isTehty));
         tehtavaTaulu.setItems(tehtavatLajiteltu);
         tehtavaTaulu.setEditable(true);
 
@@ -65,7 +56,7 @@ public class MainController implements Initializable {
         tekstiSarake.setCellValueFactory(cd -> cd.getValue().tekstiProperty());
         tehtavaTaulu.getColumns().add(tekstiSarake);
 
-        lataa();
+        tehtavakokoelma.lataa();
         lisaaUusiTehtavaPainike.setOnAction(event -> lisaaTehtava());
         uusiTehtavaNimi.setOnAction(event -> lisaaTehtava());
 
@@ -74,39 +65,14 @@ public class MainController implements Initializable {
 
     private void poistaValittu() {
         Tehtava valittuTehtava = tehtavaTaulu.getSelectionModel().getSelectedItem();
-        if (valittuTehtava == null) {
-            return;
-        }
-        tehtavat.remove(valittuTehtava);
+        tehtavakokoelma.poistaTehtava(valittuTehtava);
     }
 
-    private void tallenna() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(Path.of("tehtavat.json"), tehtavat);
-    }
 
-    private void lataa() {
-        Path path = Path.of("tehtavat.json");
-        if (Files.notExists(path)) {
-            return;
-        }
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            List<Tehtava> kaikkiTehtavat = mapper.readValue(path, new TypeReference<>() {});
-            tehtavat.addAll(kaikkiTehtavat);
-
-        } catch (JacksonException e) {
-            IO.println("Virhe: " + e.getMessage());
-        }
-    }
 
     private void lisaaTehtava() {
         String teksti = uusiTehtavaNimi.getText();
-        if (teksti == null || teksti.isBlank()) {
-            uusiTehtavaNimi.requestFocus();
-            return;
-        }
-        tehtavat.add(new Tehtava(teksti, false));
+        tehtavakokoelma.lisaaTehtava(teksti);
         uusiTehtavaNimi.clear();
         uusiTehtavaNimi.requestFocus();
     }
