@@ -16,7 +16,10 @@ public class Tehtavakokoelma {
 
     private ObservableList<Tehtava> tehtavat = FXCollections.observableArrayList(
             tehtava -> new Observable[] {
-                    tehtava.tehtyProperty()
+                    tehtava.tehtyProperty(),
+                    tehtava.otsikkoProperty(),
+                    tehtava.kuvausProperty(),
+                    tehtava.prioriteettiProperty()
             }
     );
 
