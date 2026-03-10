@@ -57,5 +57,30 @@ public class TehtavakokoelmaTest {
         tehtavakokoelma.lisaaTehtava("Mene nukkumaan");
         assertEquals(2, tehtavakokoelma.getTehtavat().size(), "Saman nimisen tehtävän lisäys onnistuu");
     }
+    @Test
+    void tehtavakokoelmaTehtavanMerkintaToimii() {
+        Tehtavakokoelma tehtavakokoelma = new Tehtavakokoelma(Path.of("tehtavatttest.json"));
+        tehtavakokoelma.lisaaTehtava("Herää");
+        tehtavakokoelma.lisaaTehtava("Herää");
+
+        Tehtava tehtava = tehtavakokoelma.getTehtavat().getFirst();
+        tehtava.setTehty(true);
+
+        Tehtava tehtava2 = tehtavakokoelma.getTehtavat().get(1);
+
+        assertTrue(tehtava.isTehty(), "ensimmäinen listaan lisätty samanniminen tehtävä on tehty");
+        assertFalse(tehtava2.isTehty(), "toisena listaan lisätty tehtävä ei ole tehty");
+
+    }
+    @Test
+    void tehtavakokoelmaJarjestysOikein() {
+        Tehtavakokoelma tehtavakokoelma = new Tehtavakokoelma(Path.of("tehtavattest.json"));
+        tehtavakokoelma.lisaaTehtava("Herää");
+        tehtavakokoelma.lisaaTehtava("Syö");
+
+        assertEquals("Herää", tehtavakokoelma.getTehtavat().getFirst().getOtsikko(), "Ensimmäinen lisätty on listassa ekana");
+        assertEquals("Syö", tehtavakokoelma.getTehtavat().get(1).getOtsikko(), "Toinen listaan lisätty tehtävä on toisena");
+    }
+
 
 }
