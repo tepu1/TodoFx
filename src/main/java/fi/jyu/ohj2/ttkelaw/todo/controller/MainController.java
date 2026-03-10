@@ -44,7 +44,7 @@ public class MainController implements Initializable {
     @FXML
     private Button poistaValittuPainike;
 
-    Tehtavakokoelma tehtavakokoelma = new Tehtavakokoelma();
+    Tehtavakokoelma tehtavakokoelma = new Tehtavakokoelma(Path.of("tehtavat.json"));
 
 
     @Override

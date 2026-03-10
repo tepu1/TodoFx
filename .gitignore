@@ -1,3 +1,5 @@
+tehtavat.json
+tehtavattest.json
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -5,7 +7,6 @@ target/
 .kotlin
 
 ### IntelliJ IDEA ###
-tehtavat.json
 .idea/modules.xml
 .idea/jarRepositories.xml
 .idea/compiler.xml

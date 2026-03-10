@@ -23,7 +23,10 @@ public class Tehtavakokoelma {
             }
     );
 
-    public Tehtavakokoelma() {
+    private final Path polku;
+
+    public Tehtavakokoelma(Path polku) {
+        this.polku = polku;
         tehtavat.addListener((ListChangeListener<Tehtava>) change -> {
             tallenna();
         });
@@ -35,17 +38,17 @@ public class Tehtavakokoelma {
 
     public void tallenna() {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(Path.of("tehtavat.json"), tehtavat);
+        mapper.writeValue(polku, tehtavat);
     }
 
     public void lataa() {
         Path path = Path.of("tehtavat.json");
-        if (Files.notExists(path)) {
+        if (Files.notExists(polku)) {
             return;
         }
         try {
             ObjectMapper mapper = new ObjectMapper();
-            List<Tehtava> kaikkiTehtavat = mapper.readValue(path, new TypeReference<>() {});
+            List<Tehtava> kaikkiTehtavat = mapper.readValue(polku.toFile(), new TypeReference<>() {});
             tehtavat.addAll(kaikkiTehtavat);
 
         } catch (JacksonException e) {
